@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cathodique Cord</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        html, body {
+            height: 100%;
+            background: #ffffff;
+            color: #000000;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        /* Login Page */
+        #login {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login.hidden {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+        #login .container {
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            background: #f8f8f8;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login h1 {
+            font-size: 42px;
+            font-weight: 800;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+        #login p {
+            font-size: 16px;
+            color: #666666;
+            margin-bottom: 30px;
+        }
+        #login .form-group {
+            position: relative;
+            margin: 15px 0;
+        }
+        #login input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 1px solid #000000;
+            background: #ffffff;
+            color: #000000;
+            transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login input:focus {
+            outline: none;
+            border-color: #000000;
+            transform: scale(1.02);
+        }
+        #login .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 14px;
+            color: #666666;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login .toggle-password:hover {
+            color: #000000;
+        }
+        #login button {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login button:hover {
+            background: #333333;
+            transform: scale(1.02);
+        }
+        #login .status {
+            margin-top: 15px;
+            color: #ff0000;
+            font-size: 14px;
+            font-weight: 500;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login .links {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666666;
+        }
+        #login .links a {
+            color: #000000;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #login .links a:hover {
+            color: #333333;
+        }
+        /* App */
+        #app {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #app.active {
+            display: flex;
+            opacity: 1;
+        }
+        #header {
+            background: #ffffff;
+            border-bottom: 1px solid #000000;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+        }
+        #header img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #header img:hover {
+            transform: rotate(360deg) scale(1.1);
+        }
+        #header .status {
+            width: 10px;
+            height: 10px;
+            background: #000000;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.4); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        #main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 80px;
+            background: #ffffff;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            border-right: 1px solid #000000;
+            overflow-y: auto;
+        }
+        #sidebar .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            margin: 8px 0;
+            cursor: pointer;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sidebar .icon:hover {
+            transform: scale(1.2);
+        }
+        #sidebar .icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        #sidebar .icon.active {
+            background: #000000;
+        }
+        #sidebar .icon.active img {
+            filter: brightness(0) invert(1);
+        }
+        #sidebar .icon.active::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: #000000;
+            left: 0;
+            border-radius: 0 4px 4px 0;
+        }
+        #sidebar .add {
+            width: 48px;
+            height: 48px;
+            background: #000000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sidebar .add:hover {
+            background: #333333;
+            transform: scale(1.2);
+        }
+        #content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+        #chatHeader {
+            background: #ffffff;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #000000;
+            font-weight: 600;
+            border-bottom: 1px solid #000000;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #chatHeader img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #chatHeader img:hover {
+            transform: rotate(360deg) scale(1.1);
+        }
+        #chatHeader .name {
+            font-size: 16px;
+        }
+        #chatHeader .sub {
+            font-size: 12px;
+            color: #666666;
+        }
+        #chat {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #ffffff;
+        }
+        .msg {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            max-width: 85%;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .msg img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .msg img:hover {
+            transform: scale(1.2);
+        }
+        .msg .bubble {
+            background: #e0e0e0;
+            color: #000000;
+            padding: 10px 14px;
+            border-radius: 16px;
+            max-width: 100%;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.4;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .msg.me {
+            flex-direction: row-reverse;
+        }
+        .msg.me .bubble {
+            background: #000000;
+            color: #ffffff;
+            border-radius: 16px 16px 4px 16px;
+        }
+        .msg .time {
+            font-size: 11px;
+            color: #666666;
+            margin-top: 4px;
+        }
+        #inputArea {
+            background: #ffffff;
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            border-top: 1px solid #000000;
+        }
+        #inputArea input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 16px;
+            border-radius: 20px;
+            background: #e0e0e0;
+            color: #000000;
+            border: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #inputArea input:focus {
+            outline: none;
+            transform: scale(1.03);
+        }
+        #inputArea button {
+            width: 44px;
+            height: 44px;
+            background: #000000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffffff;
+            border: none;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #inputArea button:hover {
+            background: #333333;
+            transform: scale(1.2);
+        }
+        #tools {
+            background: #ffffff;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border-top: 1px solid #000000;
+        }
+        #tools button {
+            padding: 8px 16px;
+            background: #e0e0e0;
+            color: #000000;
+            border: 1px solid #000000;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #tools button:hover {
+            background: #000000;
+            color: #ffffff;
+            transform: scale(1.03);
+        }
+        #callBtn {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            background: #000000;
+            color: #ffffff;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #callBtn:hover {
+            background: #333333;
+            transform: scale(1.2);
+        }
+        .hidden {
+            display: none;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000000;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-20px);
+        }
+        #accountSwipe {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        #accountSwipe button {
+            padding: 6px 12px;
+            background: #e0e0e0;
+            color: #000000;
+            border: 1px solid #000000;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #accountSwipe button:hover {
+            background: #000000;
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+        #tabBar {
+            background: #ffffff;
+            border-top: 1px solid #000000;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 99;
+        }
+        #tabBar button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666666;
+            cursor: pointer;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #tabBar button.active {
+            color: #000000;
+            transform: scale(1.1);
+        }
+        #tabBar button:hover {
+            color: #000000;
+            transform: scale(1.1);
+        }
+        #settings {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            background: #ffffff;
+            height: 100%;
+            overflow-y: auto;
+        }
+        #settings h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+        #settings label {
+            font-size: 16px;
+            color: #000000;
+            margin-bottom: 10px;
+        }
+        #settings select, #settings input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #000000;
+            background: #e0e0e0;
+            color: #000000;
+            margin-bottom: 20px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #settings select:focus, #settings input:focus {
+            outline: none;
+            transform: scale(1.02);
+        }
+        #captchaModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #captchaModal.show {
+            display: flex;
+            opacity: 1;
+        }
+        #captchaModal .modal-content {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #captchaModal input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #000000;
+            margin: 10px 0;
+        }
+        #captchaModal button {
+            padding: 12px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #captchaModal button:hover {
+            background: #333333;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN -->
+    <div id="login">
+        <div class="container">
+            <h1>Cathodique Cord</h1>
+            <p>Connectez-vous pour accéder à vos serveurs et messages</p>
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="pass" placeholder="Mot de passe">
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
+            <div class="form-group">
+                <input type="text" id="token" placeholder="Token (optionnel)">
+            </div>
+            <button onclick="login()">Connexion</button>
+            <div class="status" id="status"></div>
+            <div class="links">
+                <a href="#" onclick="alert('Bientôt disponible')">Mot de passe oublié ?</a> |
+                <a href="#" onclick="alert('Bientôt disponible')">Créer un compte</a> |
+                <a href="#" onclick="showTokenLogin()">Connexion via Token</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAPTCHA MODAL -->
+    <div id="captchaModal" class="hidden">
+        <div class="modal-content">
+            <h2>Captcha Requis</h2>
+            <p>Entrez la réponse au captcha reçu.</p>
+            <input type="text" id="captchaInput" placeholder="Réponse au captcha">
+            <button onclick="submitCaptcha()">Valider</button>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app" class="hidden">
+        <div id="accountSwipe">
+            <button onclick="prevAccount()">Précédent</button>
+            <button onclick="nextAccount()">Suivant</button>
+            <button onclick="addAccount()">Ajouter Compte</button>
+        </div>
+        <div id="header">
+            <img id="userPfp" src="" alt="">
+            <div id="username"></div>
+            <div class="status"></div>
+        </div>
+        <div id="main">
+            <div id="sidebar">
+                <div class="icon active" onclick="showServers()">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000000'><path d='M12 2L2 7v10c0 5.55 4.48 10.04 10 10.04 5.52 0 10-4.49 10-10.04V7l-10-5z'/></svg>" alt="Home">
+                </div>
+                <div id="serverIcons"></div>
+                <div class="add" onclick="createServer()">+</div>
+                <div class="add" onclick="joinServer()">➕</div>
+            </div>
+            <div id="content">
+                <div id="chatHeader" class="hidden">
+                    <img id="channelPfp" src="" alt="">
+                    <div>
+                        <div class="name" id="channelName"></div>
+                        <div class="sub" id="channelSub"></div>
+                    </div>
+                </div>
+                <div id="chat"></div>
+                <div id="inputArea" class="hidden">
+                    <input type="text" id="msgInput" placeholder="Message...">
+                    <button onclick="send()">Envoyer</button>
+                </div>
+            </div>
+            <div id="settings" class="hidden">
+                <h2>Paramètres</h2>
+                <label>Statut</label>
+                <select id="statusSelect" onchange="updateStatus()">
+                    <option value="online">En ligne</option>
+                    <option value="idle">Inactif</option>
+                    <option value="dnd">Ne pas déranger</option>
+                    <option value="invisible">Invisible</option>
+                </select>
+                <label>Activité personnalisée</label>
+                <input type="text" id="customActivity" placeholder="Jouer à..." oninput="updateStatus()">
+                <label>Thème</label>
+                <select id="themeSelect" onchange="updateTheme()">
+                    <option value="light">Clair</option>
+                    <option value="dark">Sombre</option>
+                </select>
+            </div>
+            <div id="tools" class="hidden">
+                <button onclick="spam()">Spam</button>
+                <button onclick="multiAccountSpam()">Spam Multi-Comptes</button>
+                <button onclick="massDM()">Mass DM</button>
+                <button onclick="raid()">Raid</button>
+                <button onclick="typing()">Typing</button>
+                <button onclick="clear()">Effacer</button>
+                <button onclick="logout()">Déconnexion</button>
+                <button onclick="share()">Partager</button>
+                <button onclick="pinMessage()">Épingler</button>
+                <button onclick="searchMessages()">Rechercher</button>
+                <button onclick="exportChat()">Exporter Chat</button>
+                <button onclick="muteChannel()">Muet</button>
+                <button onclick="autoReact()">Auto-Réagir</button>
+                <button onclick="manageRoles()">Gérer Rôles</button>
+                <button onclick="bulkDelete()">Suppression Massive</button>
+            </div>
+        </div>
+        <div id="callBtn" class="hidden" onclick="joinCall()">Call</div>
+        <div id="tabBar">
+            <button class="active" onclick="showTab('content')">Chat</button>
+            <button onclick="showTab('tools')">Outils</button>
+            <button onclick="showTab('settings')">Paramètres</button>
+        </div>
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+        let token = '', user = {}, ws = null, current = null, servers = [], dms = [];
+        let accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+        let currentAccountIndex = 0;
+        let loginAttempts = 0;
+        const maxAttempts = 3;
+        let captchaRequired = false;
+        let captchaKey = '';
+
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('pass').value.trim();
+            const tokenInput = document.getElementById('token').value.trim();
+            const status = document.getElementById('status');
+            if (!email && !pass && !tokenInput) {
+                showToast('Veuillez remplir au moins un champ');
+                return;
+            }
+            status.textContent = 'Connexion en cours...';
+            try {
+                let res;
+                if (tokenInput) {
+                    await testToken(tokenInput);
+                    return;
+                }
+                res = await fetch('https://discord.com/api/v9/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password: pass })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    loginAttempts++;
+                    if (data.code === 400 || data.message.includes('Invalid')) {
+                        status.textContent = 'Identifiants incorrects';
+                        if (loginAttempts >= maxAttempts) {
+                            showToast('Trop de tentatives. Réessayez dans 5 minutes.');
+                            setTimeout(() => location.reload(), 5000);
+                        }
+                    } else if (data.message.includes('rate limit')) {
+                        status.textContent = 'Trop de requêtes. Attendez quelques secondes.';
+                        setTimeout(() => status.textContent = '', 5000);
+                    } else if (data.message.includes('MFA')) {
+                        status.textContent = 'Authentification à deux facteurs requise.';
+                        const t = prompt('Entrez votre token Discord :');
+                        if (t) await testToken(t);
+                    } else if (data.captcha_key) {
+                        captchaRequired = true;
+                        captchaKey = data.captcha_key;
+                        showCaptchaModal();
+                        status.textContent = 'Captcha requis. Vérifiez le modal.';
+                    } else {
+                        status.textContent = 'Erreur serveur. Vérifiez votre connexion.';
+                        setTimeout(() => status.textContent = '', 5000);
+                    }
+                    return;
+                }
+                loginAttempts = 0;
+                token = data.token;
+                accounts.push({ email, token });
+                localStorage.setItem('accounts', JSON.stringify(accounts));
+                await testToken(token);
+            } catch (e) {
+                status.textContent = 'Erreur réseau. Vérifiez votre connexion Wi-Fi.';
+                setTimeout(() => status.textContent = '', 5000);
+            }
+        }
+
+        function togglePassword() {
+            const passInput = document.getElementById('pass');
+            const toggle = document.querySelector('.toggle-password');
+            passInput.type = passInput.type === 'password' ? 'text' : 'password';
+            toggle.textContent = passInput.type === 'password' ? '👁️' : '👁️‍🗨️';
+        }
+
+        function showTokenLogin() {
+            document.getElementById('email').style.display = 'none';
+            document.getElementById('pass').style.display = 'none';
+            document.querySelector('.toggle-password').style.display = 'none';
+            document.getElementById('token').style.display = 'block';
+        }
+
+        function showCaptchaModal() {
+            document.getElementById('captchaModal').classList.add('show');
+        }
+
+        async function submitCaptcha() {
+            const captchaInput = document.getElementById('captchaInput').value.trim();
+            if (!captchaInput) {
+                showToast('Veuillez entrer une réponse au captcha');
+                return;
+            }
+            try {
+                const res = await fetch('https://discord.com/api/v9/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ captcha_key: captchaInput })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showToast('Captcha invalide');
+                    return;
+                }
+                captchaRequired = false;
+                document.getElementById('captchaModal').classList.remove('show');
+                await login(); // Retry login
+            } catch (e) {
+                showToast('Erreur réseau lors de la validation du captcha');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        async function testToken(t) {
+            try {
+                const res = await fetch('https://discord.com/api/v9/users/@me', {
+                    headers: { Authorization: t }
+                });
+                if (!res.ok) {
+                    showToast('Token invalide');
+                    localStorage.removeItem('token');
+                    accounts = accounts.filter(acc => acc.token !== t);
+                    localStorage.setItem('accounts', JSON.stringify(accounts));
+                    return;
+                }
+                user = await res.json();
+                token = t;
+                localStorage.token = t;
+                document.getElementById('login').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                document.getElementById('app').classList.add('active');
+                init();
+            } catch (e) {
+                showToast('Erreur réseau lors de la validation du token. Vérifiez votre Wi-Fi.');
+                localStorage.removeItem('token');
+            }
+        }
+
+        function init() {
+            document.getElementById('userPfp').src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar || 'default'}.png?size=64`;
+            document.getElementById('username').textContent = user.username;
+            connectWS();
+            loadServers();
+            loadDMs();
+        }
+
+        function connectWS() {
+            if (ws) ws.close();
+            ws = new WebSocket('wss://gateway.discord.gg/?v=9&encoding=json');
+            ws.onopen = () => {
+                ws.send(JSON.stringify({
+                    op: 2,
+                    d: {
+                        token,
+                        intents: 32767,
+                        properties: { os: 'iOS', browser: 'Cathodique', device: 'iPhone' },
+                        presence: { status: 'online', activities: [{ name: 'Cathodique Cord', type: 0 }] }
+                    }
+                }));
+            };
+            ws.onmessage = e => {
+                const p = JSON.parse(e.data);
+                if (p.op === 10) {
+                    setInterval(() => ws.send(JSON.stringify({ op: 1, d: null })), p.d.heartbeat_interval);
+                }
+                if (p.t === 'READY') console.log('WS Ready');
+                if (p.t === 'MESSAGE_CREATE' && p.d.channel_id === current) addMsg(p.d);
+            };
+            ws.onclose = () => {
+                showToast('Connexion WebSocket perdue. Reconnexion...');
+                setTimeout(connectWS, 2000);
+            };
+            ws.onerror = () => {
+                showToast('Erreur WebSocket. Reconnexion...');
+                ws.close();
+            };
+        }
+
+        async function api(p, o = {}) {
+            try {
+                const r = await fetch(`https://discord.com/api/v9${p}`, {
+                    headers: { Authorization: token, 'Content-Type': 'application/json', ...o.headers },
+                    ...o
+                });
+                if (!r.ok) {
+                    if (r.status === 429) {
+                        showToast('Limite de requêtes atteinte. Attente...');
+                        await new Promise(resolve => setTimeout(resolve, 5000));
+                        return api(p, o);
+                    }
+                    if (r.status === 403) {
+                        showToast('Permission refusée. Vérifiez votre token.');
+                        return null;
+                    }
+                    showToast('Erreur API. Vérifiez votre connexion.');
+                    return null;
+                }
+                return r.json();
+            } catch (e) {
+                showToast('Erreur réseau API. Vérifiez votre Wi-Fi.');
+                return null;
+            }
+        }
+
+        async function loadServers() {
+            servers = await api('/users/@me/guilds') || [];
+            const container = document.getElementById('serverIcons');
+            container.innerHTML = '';
+            servers.forEach(g => {
+                const div = document.createElement('div');
+                div.className = 'icon';
+                const img = document.createElement('img');
+                img.src = g.icon ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png?size=64` : 
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(g.name)}&background=e0e0e0&color=000000&size=64`;
+                img.alt = g.name;
+                div.appendChild(img);
+                div.onclick = () => openServer(g.id, g.name, img.src);
+                container.appendChild(div);
+            });
+        }
+
+        async function loadDMs() {
+            dms = await api('/users/@me/channels') || [];
+            const container = document.getElementById('serverIcons');
+            dms.forEach(d => {
+                const div = document.createElement('div');
+                div.className = 'icon';
+                const img = document.createElement('img');
+                const recipient = d.recipients[0];
+                img.src = recipient.avatar ? 
+                    `https://cdn.discordapp.com/avatars/${recipient.id}/${recipient.avatar}.png?size=64` :
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(recipient.username)}&background=e0e0e0&color=000000&size=64`;
+                img.alt = recipient.username;
+                div.appendChild(img);
+                div.onclick = () => openChannel(d.id, recipient.username, img.src);
+                container.appendChild(div);
+            });
+        }
+
+        async function openServer(id, name, icon) {
+            document.querySelectorAll('#serverIcons .icon').forEach(x => x.classList.remove('active'));
+            event.target.closest('.icon').classList.add('active');
+            const channels = await api(`/guilds/${id}/channels`);
+            const chat = document.getElementById('chat');
+            chat.innerHTML = '';
+            document.getElementById('tools').classList.remove('hidden');
+            if (channels) {
+                channels.filter(c => c.type === 0).forEach(c => {
+                    const msg = document.createElement('div');
+                    msg.className = 'msg';
+                    msg.innerHTML = `<img src="${icon}" alt=""><div class="bubble">#${c.name}</div>`;
+                    msg.onclick = () => openChannel(c.id, `#${c.name}`, icon);
+                    chat.appendChild(msg);
+                });
+            }
+        }
+
+        async function openChannel(id, name, pfp) {
+            current = id;
+            document.getElementById('chatHeader').classList.remove('hidden');
+            document.getElementById('inputArea').classList.remove('hidden');
+            document.getElementById('callBtn').classList.remove('hidden');
+            document.getElementById('channelName').textContent = name;
+            document.getElementById('channelPfp').src = pfp;
+            document.getElementById('channelSub').textContent = 'Canal actif';
+            const msgs = await api(`/channels/${id}/messages?limit=50`) || [];
+            const chat = document.getElementById('chat');
+            chat.innerHTML = '';
+            msgs.reverse().forEach(addMsg);
+        }
+
+        function addMsg(m) {
+            const div = document.createElement('div');
+            div.className = 'msg';
+            const isMe = m.author.id === user.id;
+            if (isMe) div.classList.add('me');
+            const pfp = `https://cdn.discordapp.com/avatars/${m.author.id}/${m.author.avatar || 'default'}.png?size=64`;
+            const time = new Date(m.timestamp).toLocaleTimeString('fr', { hour: '2-digit', minute: '2-digit' });
+            div.innerHTML = `
+                <img src="${pfp}" alt="">
+                <div>
+                    <div class="bubble">${m.content}</div>
+                    <div class="time">${time}</div>
+                </div>
+            `;
+            document.getElementById('chat').appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function send() {
+            const input = document.getElementById('msgInput');
+            const content = input.value.trim();
+            if (!content || !current) return;
+            input.value = '';
+            addMsg({ author: { id: user.id, username: user.username, avatar: user.avatar }, content, timestamp: new Date() });
+            api(`/channels/${current}/messages`, { method: 'POST', body: JSON.stringify({ content }) });
+        }
+
+        document.getElementById('msgInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                send();
+            }
+        });
+
+        async function createServer() {
+            const name = prompt('Nom du serveur ?');
+            if (!name) return;
+            await api('/guilds', { method: 'POST', body: JSON.stringify({ name }) });
+            showToast('Serveur créé');
+            loadServers();
+        }
+
+        async function joinServer() {
+            const inviteCode = prompt('Entrez le code d\'invitation (ex: discord.gg/XXXX) :');
+            if (!inviteCode) return;
+            const code = inviteCode.split('/').pop();
+            try {
+                const res = await api(`/invites/${code}`, { method: 'POST' });
+                if (res && res.guild) {
+                    showToast(`Rejoint le serveur ${res.guild.name}`);
+                    loadServers();
+                } else if (res.captcha_key) {
+                    captchaRequired = true;
+                    captchaKey = res.captcha_key;
+                    showCaptchaModal();
+                } else {
+                    showToast('Code d\'invitation invalide');
+                }
+            } catch (e) {
+                showToast('Erreur réseau lors de la tentative de rejoindre le serveur');
+            }
+        }
+
+        function spam() {
+            const msg = prompt('Message spam ?');
+            if (!msg) return;
+            const delay = parseInt(prompt('Délai (ms) ?', 700)) || 700;
+            let i = 0;
+            const int = setInterval(() => {
+                if (i++ > 100) clearInterval(int);
+                api(`/channels/${current}/messages`, { method: 'POST', body: JSON.stringify({ content: msg }) });
+            }, delay);
+            showToast('Spam démarré');
+        }
+
+        async function multiAccountSpam() {
+            const msg = prompt('Message spam multi-comptes ?');
+            if (!msg) return;
+            const delay = parseInt(prompt('Délai entre messages (ms) ?', 1000)) || 1000;
+            const promises = accounts.map(async (acc, index) => {
+                let i = 0;
+                const spamInterval = setInterval(async () => {
+                    if (i++ > 50) clearInterval(spamInterval);
+                    try {
+                        await fetch(`https://discord.com/api/v9/channels/${current}/messages`, {
+                            method: 'POST',
+                            headers: { Authorization: acc.token, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ content: `${msg} (Compte ${index + 1})` })
+                        });
+                    } catch (e) {
+                        showToast(`Erreur spam compte ${index + 1}`);
+                    }
+                }, delay * (index + 1));
+            });
+            await Promise.all(promises);
+            showToast('Spam multi-comptes démarré');
+        }
+
+        function massDM() {
+            const msg = prompt('Message pour tous les DMs ?');
+            if (!msg) return;
+            dms.forEach(d => api(`/channels/${d.id}/messages`, { method: 'POST', body: JSON.stringify({ content: msg }) }));
+            showToast('Mass DM envoyé');
+        }
+
+        function raid() {
+            const name = prompt('Nom du salon ?');
+            if (!name) return;
+            const count = parseInt(prompt('Nombre de salons ?', 10)) || 10;
+            api(`/guilds/${servers[0].id}/channels`, { method: 'POST', body: JSON.stringify({ name, type: 0 }) }).then(() => {
+                for (let i = 1; i < count; i++) {
+                    api(`/guilds/${servers[0].id}/channels`, { method: 'POST', body: JSON.stringify({ name, type: 0 }) });
+                }
+            });
+            showToast('Raid démarré');
+        }
+
+        function typing() {
+            setInterval(() => api(`/channels/${current}/typing`, { method: 'POST' }), 4000);
+            showToast('Typing activé');
+        }
+
+        function clear() {
+            document.getElementById('chat').innerHTML = '';
+            showToast('Chat effacé');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('accounts');
+            location.reload();
+        }
+
+        async function joinCall() {
+            if (!current) return;
+            const ch = await api(`/channels/${current}`);
+            if (ch.type !== 2) {
+                showToast('Canal non vocal');
+                return;
+            }
+            showToast('Appel rejoint');
+        }
+
+        function share() {
+            const text = `Rejoins-moi sur Cathodique Cord !`;
+            if (navigator.share) {
+                navigator.share({ title: 'Cathodique Cord', text, url: window.location.href });
+            } else {
+                prompt('Copie ce texte pour partager :', text);
+            }
+            showToast('Partage initié');
+        }
+
+        async function pinMessage() {
+            const msgId = prompt('ID du message à épingler ?');
+            if (!msgId || !current) return;
+            await api(`/channels/${current}/pins/${msgId}`, { method: 'PUT' });
+            showToast('Message épinglé');
+        }
+
+        async function searchMessages() {
+            const query = prompt('Rechercher un message ?');
+            if (!query || !current) return;
+            const msgs = await api(`/channels/${current}/messages/search?content=${encodeURIComponent(query)}`);
+            if (msgs && msgs.messages) {
+                const chat = document.getElementById('chat');
+                chat.innerHTML = '';
+                msgs.messages.flat().forEach(addMsg);
+                showToast('Résultats affichés');
+            } else {
+                showToast('Aucun résultat');
+            }
+        }
+
+        async function exportChat() {
+            if (!current) return;
+            const msgs = await api(`/channels/${current}/messages?limit=50`) || [];
+            const text = msgs.map(m => `${m.author.username} (${new Date(m.timestamp).toLocaleString('fr')}): ${m.content}`).join('\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chat_${current}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Chat exporté');
+        }
+
+        async function muteChannel() {
+            if (!current) return;
+            await api(`/channels/${current}/mute`, { method: 'PUT', body: JSON.stringify({ mute: true }) });
+            showToast('Canal mis en sourdine');
+        }
+
+        async function autoReact() {
+            const emoji = prompt('Emoji à réagir (ex: 👍) ?');
+            if (!emoji || !current) return;
+            const msgs = await api(`/channels/${current}/messages?limit=10`) || [];
+            for (const msg of msgs) {
+                await api(`/channels/${current}/messages/${msg.id}/reactions/${encodeURIComponent(emoji)}/@me`, { method: 'PUT' });
+            }
+            showToast('Réactions automatiques ajoutées');
+        }
+
+        async function manageRoles() {
+            const guildId = servers[0]?.id;
+            if (!guildId) {
+                showToast('Aucun serveur sélectionné');
+                return;
+            }
+            const roleName = prompt('Nom du rôle à créer ?');
+            if (!roleName) return;
+            await api(`/guilds/${guildId}/roles`, { method: 'POST', body: JSON.stringify({ name: roleName }) });
+            showToast(`Rôle ${roleName} créé`);
+        }
+
+        async function bulkDelete() {
+            const count = parseInt(prompt('Nombre de messages à supprimer ?', 10)) || 10;
+            if (!current) return;
+            const msgs = await api(`/channels/${current}/messages?limit=${count}`) || [];
+            for (const msg of msgs) {
+                await api(`/channels/${current}/messages/${msg.id}`, { method: 'DELETE' });
+            }
+            showToast(`${count} messages supprimés`);
+        }
+
+        async function addAccount() {
+            const email = prompt('Email du nouveau compte ?');
+            const pass = prompt('Mot de passe du nouveau compte ?');
+            if (!email || !pass) {
+                showToast('Veuillez fournir email et mot de passe');
+                return;
+            }
+            try {
+                const res = await fetch('https://discord.com/api/v9/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password: pass })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    if (data.captcha_key) {
+                        captchaRequired = true;
+                        captchaKey = data.captcha_key;
+                        showCaptchaModal();
+                    } else {
+                        showToast('Échec de l’ajout du compte');
+                    }
+                    return;
+                }
+                accounts.push({ email, token: data.token });
+                localStorage.setItem('accounts', JSON.stringify(accounts));
+                showToast('Compte ajouté');
+            } catch (e) {
+                showToast('Erreur réseau lors de l’ajout du compte');
+            }
+        }
+
+        async function switchAccount(index) {
+            if (index < 0 || index >= accounts.length) return;
+            currentAccountIndex = index;
+            token = accounts[index].token;
+            if (ws) ws.close();
+            await testToken(token);
+            showToast(`Compte changé: ${accounts[index].email}`);
+        }
+
+        function prevAccount() {
+            switchAccount(currentAccountIndex - 1);
+        }
+
+        function nextAccount() {
+            switchAccount(currentAccountIndex + 1);
+        }
+
+        function showTab(tab) {
+            document.getElementById('content').classList.add('hidden');
+            document.getElementById('tools').classList.add('hidden');
+            document.getElementById('settings').classList.add('hidden');
+            document.getElementById(tab).classList.remove('hidden');
+            document.querySelectorAll('#tabBar button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`#tabBar button[onclick="showTab('${tab}')"]`).classList.add('active');
+        }
+
+        async function updateStatus() {
+            const status = document.getElementById('statusSelect').value;
+            const activity = document.getElementById('customActivity').value;
+            if (ws) {
+                ws.send(JSON.stringify({
+                    op: 3,
+                    d: {
+                        status,
+                        activities: activity ? [{ name: activity, type: 0 }] : [],
+                        since: 0,
+                        afk: false
+                    }
+                }));
+            }
+            showToast('Statut mis à jour');
+        }
+
+        function updateTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.style.background = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+            document.querySelectorAll('.msg .bubble').forEach(b => {
+                b.style.background = theme === 'dark' ? '#333333' : '#e0e0e0';
+                b.style.color = theme === 'dark' ? '#ffffff' : '#000000';
+            });
+            document.querySelectorAll('.msg.me .bubble').forEach(b => {
+                b.style.background = theme === 'dark' ? '#555555' : '#000000';
+            });
+            showToast(`Thème ${theme === 'dark' ? 'sombre' : 'clair'} appliqué`);
+        }
+
+        if (localStorage.token && accounts.length > 0) {
+            currentAccountIndex = 0;
+            testToken(accounts[0].token);
+        }
+    </script>
+</body>
+</html>
